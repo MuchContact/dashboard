@@ -16,6 +16,8 @@ package node
 
 import (
 	"context"
+	"github.com/kubernetes/dashboard/src/app/backend/resource/common"
+	api2 "k8s.io/client-go/tools/clientcmd/api"
 	"log"
 
 	v1 "k8s.io/api/core/v1"
@@ -47,8 +49,9 @@ type Node struct {
 }
 
 // GetNodeList returns a list of all Nodes in the cluster.
-func GetNodeList(client client.Interface, dsQuery *dataselect.DataSelectQuery, metricClient metricapi.MetricClient) (*NodeList, error) {
-	nodes, err := client.CoreV1().Nodes().List(context.TODO(), api.ListEverything)
+func GetNodeList(client client.Interface, userinfo api2.AuthInfo,dsQuery *dataselect.DataSelectQuery, metricClient metricapi.MetricClient) (*NodeList, error) {
+
+	nodes, err := client.CoreV1().Nodes().List(context.TODO(), common.AuthFilter(userinfo))
 
 	nonCriticalErrors, criticalError := errors.HandleError(err)
 	if criticalError != nil {

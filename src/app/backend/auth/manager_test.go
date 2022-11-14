@@ -44,6 +44,10 @@ type fakeClientManager struct {
 	HasAccessError error
 }
 
+func (self *fakeClientManager) ExtractAuthInfo(req *restful.Request) (*api.AuthInfo, error) {
+	return nil, nil
+}
+
 func (self *fakeClientManager) Client(req *restful.Request) (kubernetes.Interface, error) {
 	return nil, nil
 }

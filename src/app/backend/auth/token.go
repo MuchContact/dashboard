@@ -15,25 +15,51 @@
 package auth
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	authApi "github.com/kubernetes/dashboard/src/app/backend/auth/api"
 	"k8s.io/client-go/tools/clientcmd/api"
+	"strings"
 )
 
 // Implements Authenticator interface
 type tokenAuthenticator struct {
 	token string
+	user string
+	group string
 }
 
 // GetAuthInfo implements Authenticator interface. See Authenticator for more information.
 func (self tokenAuthenticator) GetAuthInfo() (api.AuthInfo, error) {
 	return api.AuthInfo{
 		Token: self.token,
+		Impersonate: self.user,
+		ImpersonateGroups: []string{self.group},
 	}, nil
 }
 
 // NewTokenAuthenticator returns Authenticator based on LoginSpec.
 func NewTokenAuthenticator(spec *authApi.LoginSpec) authApi.Authenticator {
+	token, user, group := parseTokenAndUserInfo(spec.Token)
 	return &tokenAuthenticator{
-		token: spec.Token,
+		token: token,
+		user:  user,
+		group: group,
 	}
+}
+
+func parseTokenAndUserInfo(token string) (string, string, string) {
+	if len(strings.Split(token, ".")) < 4 {
+		return token, "", ""
+	}
+	n := strings.SplitN(token, ".", 2)
+	decodeString, err := base64.StdEncoding.DecodeString(n[0])
+	if err != nil {
+		return token, "", ""
+	}
+	var user map[string]string
+	if err = json.Unmarshal(decodeString, &user); err != nil {
+		return token, "", ""
+	}
+	return n[1], user["user"], user["group"]
 }

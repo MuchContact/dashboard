@@ -538,7 +538,7 @@ func TestImpersonationExtrasClient(t *testing.T) {
 	for _, c := range cases {
 		manager := NewClientManager("", "https://localhost:8080")
 		cfg, err := manager.Config(c.request)
-		//authInfo := manager.extractAuthInfo(c.request)
+		//authInfo := manager.ExtractAuthInfo(c.request)
 		if err != nil {
 			t.Fatalf("Config(%v): Expected config to be created but error was thrown:"+
 				" %s",

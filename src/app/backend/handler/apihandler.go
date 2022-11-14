@@ -1181,10 +1181,16 @@ func (apiHandler *APIHandler) handleGetNodeList(request *restful.Request, respon
 		errors.HandleInternalError(response, err)
 		return
 	}
+	info, err := apiHandler.cManager.ExtractAuthInfo(request)
+	if err != nil {
+		errors.HandleInternalError(response, err)
+		return
+	}
 
 	dataSelect := parser.ParseDataSelectPathParameter(request)
 	dataSelect.MetricQuery = dataselect.StandardMetrics
-	result, err := node.GetNodeList(k8sClient, dataSelect, apiHandler.iManager.Metric().Client())
+
+	result, err := node.GetNodeList(k8sClient, *info, dataSelect, apiHandler.iManager.Metric().Client())
 	if err != nil {
 		errors.HandleInternalError(response, err)
 		return
@@ -1626,7 +1632,6 @@ func (apiHandler *APIHandler) handleGetDeployments(request *restful.Request, res
 		errors.HandleInternalError(response, err)
 		return
 	}
-
 	namespace := parseNamespacePathParameter(request)
 	dataSelect := parser.ParseDataSelectPathParameter(request)
 	dataSelect.MetricQuery = dataselect.StandardMetrics
@@ -1931,9 +1936,13 @@ func (apiHandler *APIHandler) handleGetNamespaces(request *restful.Request, resp
 		errors.HandleInternalError(response, err)
 		return
 	}
-
+	authinfo, err := apiHandler.cManager.ExtractAuthInfo(request)
+	if err != nil {
+		errors.HandleInternalError(response, err)
+		return
+	}
 	dataSelect := parser.ParseDataSelectPathParameter(request)
-	result, err := ns.GetNamespaceList(k8sClient, dataSelect)
+	result, err := ns.GetNamespaceList(k8sClient, *authinfo, dataSelect)
 	if err != nil {
 		errors.HandleInternalError(response, err)
 		return

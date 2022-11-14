@@ -184,7 +184,7 @@ func (self *clientManager) InsecureConfig() *rest.Config {
 // CanI returns true when user is allowed to access data provided within SelfSubjectAccessReview, false otherwise.
 func (self *clientManager) CanI(req *restful.Request, ssar *v1.SelfSubjectAccessReview) bool {
 	// In case user is not authenticated (uses skip option) do not allow access.
-	info, _ := self.extractAuthInfo(req)
+	info, _ := self.ExtractAuthInfo(req)
 	if info == nil && len(args.Holder.GetCertFile()) > 0 && len(args.Holder.GetKeyFile()) > 0 {
 		return false
 	}
@@ -207,7 +207,7 @@ func (self *clientManager) CanI(req *restful.Request, ssar *v1.SelfSubjectAccess
 // ClientCmdConfig creates ClientCmd Config based on authentication information extracted from request.
 // Currently request header is only checked for existence of 'Authentication: BearerToken'
 func (self *clientManager) ClientCmdConfig(req *restful.Request) (clientcmd.ClientConfig, error) {
-	authInfo, err := self.extractAuthInfo(req)
+	authInfo, err := self.ExtractAuthInfo(req)
 	if err != nil {
 		return nil, err
 	}
@@ -359,7 +359,7 @@ func (self *clientManager) buildCmdConfig(authInfo *api.AuthInfo, cfg *rest.Conf
 }
 
 // Extracts authorization information from the request header
-func (self *clientManager) extractAuthInfo(req *restful.Request) (*api.AuthInfo, error) {
+func (self *clientManager) ExtractAuthInfo(req *restful.Request) (*api.AuthInfo, error) {
 	authHeader := req.HeaderParameter("Authorization")
 	impersonationHeader := req.HeaderParameter("Impersonate-User")
 	jweToken := req.HeaderParameter(JWETokenHeader)

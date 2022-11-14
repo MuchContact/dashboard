@@ -70,6 +70,10 @@ type fakeClientManager struct {
 	pluginClient versioned.Interface
 }
 
+func (self *fakeClientManager) ExtractAuthInfo(req *restful.Request) (*api.AuthInfo, error) {
+	return nil, nil
+}
+
 func (cm *fakeClientManager) Client(req *restful.Request) (kubernetes.Interface, error) {
 	panic("implement me")
 }
